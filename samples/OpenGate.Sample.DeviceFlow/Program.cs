@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-var authority = Environment.GetEnvironmentVariable("OPENGATE_AUTHORITY") ?? "https://localhost:7001";
+var authority = Environment.GetEnvironmentVariable("OPENGATE_AUTHORITY") ?? "https://localhost:7191";
 var deviceEndpoint = $"{authority.TrimEnd('/')}/connect/device";
 var tokenEndpoint = $"{authority.TrimEnd('/')}/connect/token";
 

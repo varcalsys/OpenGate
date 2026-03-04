@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,7 +38,7 @@ public class OpenGateBuilder<TContext>
     /// Configures OpenGate to use SQL Server as the backing store.
     /// </summary>
     /// <param name="connectionString">SQL Server connection string.</param>
-    public OpenGateBuilder<TContext> UseSqlServer(string connectionString)
+    public OpenGateBuilder<TContext> UseSqlServer(string connectionString, string schema = "opengate")
     {
         // Allow empty string — the SQL Server provider only validates the connection string
         // when a connection is actually attempted.  In tests the DbContext is replaced with
@@ -46,7 +47,7 @@ public class OpenGateBuilder<TContext>
 
         _options.ConfigureDatabase = builder =>
             builder.UseSqlServer(connectionString, sql =>
-                    sql.MigrationsHistoryTable("__EFMigrationsHistory", "opengate"))
+                    sql.MigrationsHistoryTable("__EFMigrationsHistory", schema))
                    // Ensure OpenIddict EF Core entities are added to the model.
                    .UseOpenIddict();
 
@@ -57,13 +58,13 @@ public class OpenGateBuilder<TContext>
     /// Configures OpenGate to use PostgreSQL as the backing store.
     /// </summary>
     /// <param name="connectionString">PostgreSQL connection string.</param>
-    public OpenGateBuilder<TContext> UsePostgreSql(string connectionString)
+    public OpenGateBuilder<TContext> UsePostgreSql(string connectionString, string schema = "opengate")
     {
         ArgumentNullException.ThrowIfNull(connectionString);
 
         _options.ConfigureDatabase = builder =>
             builder.UseNpgsql(connectionString, npgsql =>
-                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "opengate")
+                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", schema)
                           .MigrationsAssembly("OpenGate.Data.EFCore.Migrations.PostgreSql"))
                    .UseOpenIddict();
 
