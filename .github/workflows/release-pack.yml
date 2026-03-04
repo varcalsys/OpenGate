@@ -1,0 +1,38 @@
+name: release-pack
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore OpenGate.slnx
+
+      - name: Build
+        run: dotnet build OpenGate.slnx -c Release --no-restore
+
+      - name: Pack src projects
+        run: dotnet pack OpenGate.slnx -c Release --no-build -o ./artifacts/packages
+
+      - name: Upload nupkg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs
+          path: artifacts/packages/*.nupkg

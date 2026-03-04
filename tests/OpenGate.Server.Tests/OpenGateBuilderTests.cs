@@ -130,6 +130,26 @@ public sealed class OpenGateBuilderTests
     }
 
     [Fact]
+    public void Builder_UsePostgreSql_Sets_ConfigureDatabase()
+    {
+        var services = new ServiceCollection();
+        var builder = services.AddOpenGate()
+            .UsePostgreSql("Host=localhost;Database=opengate;Username=postgres;Password=postgres");
+
+        Assert.NotNull(builder.Options.ConfigureDatabase);
+    }
+
+    [Fact]
+    public void Builder_UseSqlite_Sets_ConfigureDatabase()
+    {
+        var services = new ServiceCollection();
+        var builder = services.AddOpenGate()
+            .UseSqlite("Data Source=opengate.db");
+
+        Assert.NotNull(builder.Options.ConfigureDatabase);
+    }
+
+    [Fact]
     public void Builder_UseDatabase_Sets_ConfigureDatabase()
     {
         var services = new ServiceCollection();
@@ -157,4 +177,3 @@ public sealed class OpenGateBuilderTests
         Assert.Same(services, builder.Services);
     }
 }
-

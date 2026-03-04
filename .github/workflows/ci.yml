@@ -1,0 +1,61 @@
+name: ci
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore OpenGate.slnx
+
+      - name: Build
+        run: dotnet build OpenGate.slnx -c Release --no-restore
+
+      - name: Test + Coverage
+        run: dotnet test OpenGate.slnx -c Release --no-build --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.*
+
+      - name: Merge Coverage Reports
+        run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:Cobertura;TextSummary"
+
+      - name: Enforce Coverage >= 80%
+        shell: pwsh
+        run: |
+          [xml]$coverage = Get-Content coverage/Cobertura.xml
+          $lineRate = [double]$coverage.coverage.'line-rate'
+          $percent = [math]::Round($lineRate * 100, 2)
+          Write-Host "Total line coverage: $percent%"
+          if ($lineRate -lt 0.80) {
+            throw "Coverage gate failed. Required 80%, got $percent%."
+          }
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage/Cobertura.xml
+          fail_ci_if_error: true

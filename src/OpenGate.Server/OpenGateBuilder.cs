@@ -51,6 +51,39 @@ public sealed class OpenGateBuilder
     }
 
     /// <summary>
+    /// Configures OpenGate to use PostgreSQL as the backing store.
+    /// </summary>
+    /// <param name="connectionString">PostgreSQL connection string.</param>
+    public OpenGateBuilder UsePostgreSql(string connectionString)
+    {
+        ArgumentNullException.ThrowIfNull(connectionString);
+
+        _options.ConfigureDatabase = builder =>
+            builder.UseNpgsql(connectionString, npgsql =>
+                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "opengate")
+                          .MigrationsAssembly("OpenGate.Data.EFCore.Migrations.PostgreSql"))
+                   .UseOpenIddict();
+
+        return this;
+    }
+
+    /// <summary>
+    /// Configures OpenGate to use SQLite as the backing store.
+    /// </summary>
+    /// <param name="connectionString">SQLite connection string.</param>
+    public OpenGateBuilder UseSqlite(string connectionString)
+    {
+        ArgumentNullException.ThrowIfNull(connectionString);
+
+        _options.ConfigureDatabase = builder =>
+            builder.UseSqlite(connectionString, sqlite =>
+                    sqlite.MigrationsAssembly("OpenGate.Data.EFCore.Migrations.Sqlite"))
+                   .UseOpenIddict();
+
+        return this;
+    }
+
+    /// <summary>
     /// Configures OpenGate to use an existing <see cref="DbContextOptionsBuilder"/> action.
     /// Use this when you need a provider not covered by the named overloads
     /// (e.g. Npgsql, SQLite).
@@ -125,7 +158,8 @@ public sealed class OpenGateBuilder
         {
             throw new InvalidOperationException(
                 "A database provider must be configured. " +
-                "Call builder.UseSqlServer(...) or builder.UseDatabase(...) before building.");
+                "Call builder.UseSqlServer(...), builder.UsePostgreSql(...), builder.UseSqlite(...) " +
+                "or builder.UseDatabase(...) before building.");
         }
 
         // AddSignInManager() must be called here (in OpenGate.Server which has the
@@ -153,4 +187,3 @@ public sealed class OpenGateBuilder
         return this;
     }
 }
-

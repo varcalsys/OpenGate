@@ -1,11 +1,9 @@
 # ── Build stage ──────────────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /repo
 
 # Install Node.js (LTS) for Tailwind CSS compilation
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    nodejs npm \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache nodejs npm
 
 # Restore NuGet — copy only csproj files first for better layer caching
 COPY global.json Directory.Build.props ./
@@ -30,11 +28,11 @@ RUN dotnet publish samples/OpenGate.Sample.Basic/OpenGate.Sample.Basic.csproj \
     -c Release -o /app/publish --no-restore
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 WORKDIR /app
 
 # Non-root user for security
-RUN adduser --disabled-password --gecos "" appuser
+RUN adduser -D appuser
 USER appuser
 
 COPY --from=build --chown=appuser:appuser /app/publish .
@@ -44,4 +42,3 @@ ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 ENTRYPOINT ["dotnet", "OpenGate.Sample.Basic.dll"]
-

@@ -15,6 +15,16 @@
 - Arquivo: `src/OpenGate.Server/OpenGateBuilder.cs`
 - Configura `OpenGateDbContext` com SQL Server + `UseOpenIddict()`
 
+#### `OpenGateBuilder.UsePostgreSql(string connectionString)`
+
+- Arquivo: `src/OpenGate.Server/OpenGateBuilder.cs`
+- Configura `OpenGateDbContext` com PostgreSQL + `UseOpenIddict()`
+
+#### `OpenGateBuilder.UseSqlite(string connectionString)`
+
+- Arquivo: `src/OpenGate.Server/OpenGateBuilder.cs`
+- Configura `OpenGateDbContext` com SQLite + `UseOpenIddict()`
+
 #### `OpenGateBuilder.UseDatabase(Action<DbContextOptionsBuilder> optionsAction)`
 
 - Arquivo: `src/OpenGate.Server/OpenGateBuilder.cs`

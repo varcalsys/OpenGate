@@ -18,3 +18,11 @@ Para testar sem instalar no seu perfil de usuário, use um hive customizado:
 - `--opengateSrcPath` (default: `../../src`) — caminho relativo para `src/`.
 - `--seed` (default: `true`) — inclui o seeding de demo (usuário + clients + migrations).
 - `--issuerUri` (default: `http://localhost:5001`) — valor para `OpenGate:IssuerUri`.
+
+### Banco de dados
+
+No `appsettings.json`, configure `OpenGate:DatabaseProvider` com:
+
+- `sqlserver` (default)
+- `postgresql`
+- `sqlite`

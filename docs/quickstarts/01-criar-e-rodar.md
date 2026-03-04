@@ -3,7 +3,7 @@
 ### Pré-requisitos
 
 - .NET SDK conforme `global.json` (atualmente: `10.0.103`)
-- SQL Server (local) **ou** Docker (para subir um SQL Server)
+- Docker (opcional, para PostgreSQL/Redis via compose)
 
 ### 1) Instalar o template localmente (sem afetar seu usuário)
 
@@ -21,13 +21,26 @@ Se você gerar fora de `samples/`, ajuste o caminho para `src/`:
 
 - `--opengateSrcPath ../../src`
 
-### 3) Subir um SQL Server via Docker (opcional)
+### 3) Escolher provider de banco
 
-Se você não tiver SQL Server local:
+No projeto gerado, configure em `appsettings.json`:
 
-- `docker run --name opengate-sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD=OpenGate_Dev!23 -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest`
+- `OpenGate:DatabaseProvider`: `sqlserver` (default), `postgresql` ou `sqlite`
+- `ConnectionStrings:OpenGate`: string correspondente ao provider
 
-### 4) Rodar
+### 4) Rodar com Docker Compose (opcional)
+
+No root do repositório:
+
+- `docker compose up --build`
+
+Isso sobe:
+
+- `opengate` (app)
+- `postgres` (PostgreSQL)
+- `redis` (Redis)
+
+### 5) Rodar localmente
 
 Na pasta do projeto gerado:
 
@@ -39,7 +52,14 @@ Abra:
 - Discovery: `http://localhost:5148/.well-known/openid-configuration`
 - Health: `http://localhost:5148/health`
 
-### Credenciais de demo (se `--seed true`)
+### 6) Migrations por provider
+
+Scripts (root do repo):
+
+- `./scripts/ef-add-migration.ps1 -Name AddSomething -Provider sqlserver|postgresql|sqlite`
+- `./scripts/ef-update-db.ps1 -Provider sqlserver|postgresql|sqlite`
+
+### Credenciais de demo (com `--seed true`)
 
 - Usuário: `demo@opengate.test`
 - Senha: `Demo@1234!abcd`

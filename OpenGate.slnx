@@ -1,8 +1,15 @@
 <Solution>
   <Folder Name="/samples/">
     <Project Path="samples/OpenGate.Sample.Basic/OpenGate.Sample.Basic.csproj" />
+    <Project Path="samples/OpenGate.Sample.ConsoleM2M/OpenGate.Sample.ConsoleM2M.csproj" />
+    <Project Path="samples/OpenGate.Sample.DeviceFlow/OpenGate.Sample.DeviceFlow.csproj" />
+    <Project Path="samples/OpenGate.Sample.PostgreSql/OpenGate.Sample.PostgreSql.csproj" />
+    <Project Path="samples/OpenGate.Sample.ProtectedApi/OpenGate.Sample.ProtectedApi.csproj" />
+    <Project Path="samples/OpenGate.Sample.Sqlite/OpenGate.Sample.Sqlite.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/OpenGate.Data.EFCore.Migrations.PostgreSql/OpenGate.Data.EFCore.Migrations.PostgreSql.csproj" />
+    <Project Path="src/OpenGate.Data.EFCore.Migrations.Sqlite/OpenGate.Data.EFCore.Migrations.Sqlite.csproj" />
     <Project Path="src/OpenGate.Data.EFCore/OpenGate.Data.EFCore.csproj" />
     <Project Path="src/OpenGate.Server/OpenGate.Server.csproj" />
     <Project Path="src/OpenGate.UI/OpenGate.UI.csproj" />

@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="__OpenGateSrcPath__/OpenGate.Data.EFCore.Migrations.PostgreSql/OpenGate.Data.EFCore.Migrations.PostgreSql.csproj" />
+    <ProjectReference Include="__OpenGateSrcPath__/OpenGate.Data.EFCore.Migrations.Sqlite/OpenGate.Data.EFCore.Migrations.Sqlite.csproj" />
     <ProjectReference Include="__OpenGateSrcPath__/OpenGate.Server/OpenGate.Server.csproj" />
     <ProjectReference Include="__OpenGateSrcPath__/OpenGate.UI/OpenGate.UI.csproj" />
     <ProjectReference Include="__OpenGateSrcPath__/OpenGate.Data.EFCore/OpenGate.Data.EFCore.csproj" />

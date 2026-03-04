@@ -22,7 +22,8 @@ public static class OpenGateServiceCollectionExtensions
     /// Optional action to configure <see cref="OpenGateOptions"/> before the builder is returned.
     /// </param>
     /// <returns>
-    /// An <see cref="OpenGateBuilder"/> for further configuration (e.g. <c>.UseSqlServer(...)</c>).
+    /// An <see cref="OpenGateBuilder"/> for further configuration
+    /// (e.g. <c>.UseSqlServer(...)</c>, <c>.UsePostgreSql(...)</c> or <c>.UseSqlite(...)</c>).
     /// Call <c>.Build()</c> when done, or let it be built automatically at host startup.
     /// </returns>
     /// <example>
@@ -248,4 +249,3 @@ public static class OpenGateServiceCollectionExtensions
               .UseReferenceRefreshTokens();
     }
 }
-

@@ -19,7 +19,7 @@ builder.Services
         if (builder.Configuration["OpenGate:IssuerUri"] is { Length: > 0 } issuer)
             opt.IssuerUri = new Uri(issuer);
     })
-    .UseSqlServer(connectionString)
+    .UseConfiguredDatabase(builder.Configuration, connectionString)
     .Build();
 
 // Razor Pages 1 serves OpenGate.UI pages
@@ -83,3 +83,21 @@ app.Run();
 
 // Required for WebApplicationFactory<Program> in integration tests (if you add them)
 public partial class Program { }
+
+internal static class OpenGateBuilderDatabaseExtensions
+{
+    public static OpenGateBuilder UseConfiguredDatabase(
+        this OpenGateBuilder builder,
+        IConfiguration configuration,
+        string connectionString)
+    {
+        var provider = configuration["OpenGate:DatabaseProvider"]?.Trim().ToLowerInvariant();
+
+        return provider switch
+        {
+            "postgres" or "postgresql" or "npgsql" => builder.UsePostgreSql(connectionString),
+            "sqlite" => builder.UseSqlite(connectionString),
+            _ => builder.UseSqlServer(connectionString)
+        };
+    }
+}

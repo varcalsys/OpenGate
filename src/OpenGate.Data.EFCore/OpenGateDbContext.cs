@@ -71,7 +71,7 @@ public class OpenGateDbContext : IdentityDbContext<OpenGateUser>
             e.Property(a => a.ClientId).HasMaxLength(200);
             e.Property(a => a.IpAddress).HasMaxLength(45);   // IPv6 max
             e.Property(a => a.UserAgent).HasMaxLength(512);
-            e.Property(a => a.Details).HasColumnType("nvarchar(max)");
+            e.Property(a => a.Details);
 
             e.HasOne(a => a.User)
                 .WithMany(u => u.AuditLogs)
@@ -112,4 +112,3 @@ public class OpenGateDbContext : IdentityDbContext<OpenGateUser>
         });
     }
 }
-
