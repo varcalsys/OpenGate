@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OpenGate.Data.EFCore;
@@ -231,6 +232,7 @@ public static class OpenGateServiceCollectionExtensions
               .SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(30));
     }
 
+    [ExcludeFromCodeCoverage(Justification = "Requires a live host with persisted X.509 certificates; the Development preset exercises the same pipeline in integration tests.")]
     private static void ApplyProductionPreset(
         OpenIddictServerBuilder server,
         OpenGateOptions options)
@@ -257,6 +259,7 @@ public static class OpenGateServiceCollectionExtensions
         server.RequireProofKeyForCodeExchange();
     }
 
+    [ExcludeFromCodeCoverage(Justification = "Requires a live host with persisted X.509 certificates; the Development preset exercises the same pipeline in integration tests.")]
     private static void ApplyHighSecurityPreset(
         OpenIddictServerBuilder server,
         OpenGateOptions options)

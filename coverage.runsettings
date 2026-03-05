@@ -9,7 +9,7 @@
             Samples are example apps, not library code.
             Migration-only projects contain only EF-generated scaffold.
           -->
-          <Exclude>[OpenGate.Sample.*]*,[OpenGate.Data.EFCore.Migrations.*]*,[OpenGateServer]*</Exclude>
+          <Exclude>[OpenGate.Sample.*]*,[OpenGate.Data.EFCore.Migrations.*]*,[OpenGate.UI]*,[OpenGateServer]*</Exclude>
 
           <!--
             Source files excluded from coverage measurement.
