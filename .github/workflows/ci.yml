@@ -59,5 +59,4 @@ jobs:
         with:
           files: coverage/Cobertura.xml
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: varcalsys/OpenGate
           fail_ci_if_error: false
