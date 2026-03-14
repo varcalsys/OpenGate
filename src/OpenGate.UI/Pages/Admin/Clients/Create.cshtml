@@ -13,65 +13,207 @@
         <a href="/Admin/Clients" class="og-btn-ghost">Voltar</a>
     </div>
 
-    <form method="post" class="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <div asp-validation-summary="ModelOnly" class="text-sm text-red-600 dark:text-red-300"></div>
+    <form id="clientForm" method="post" class="space-y-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div asp-validation-summary="ModelOnly" class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400 [&.validation-summary-valid]:hidden"></div>
 
-        <div class="grid gap-4 lg:grid-cols-2">
+        @* Hidden fields populated by JS before submit *@
+        <input type="hidden" id="hdnPermissions" name="Input.Permissions" />
+        <input type="hidden" id="hdnRequirements" name="Input.Requirements" />
+
+        @* ── Identificação ──────────────────────────────────────────── *@
+        <div class="space-y-4">
+            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Identificação</h2>
+            <div class="grid gap-4 lg:grid-cols-2">
+                <div>
+                    <label asp-for="Input.ClientId" class="og-label">Client ID</label>
+                    <input asp-for="Input.ClientId" class="og-input" autocomplete="off" />
+                    <span asp-validation-for="Input.ClientId" class="og-field-error"></span>
+                </div>
+                <div>
+                    <label asp-for="Input.DisplayName" class="og-label">Nome de exibição</label>
+                    <input asp-for="Input.DisplayName" class="og-input" />
+                </div>
+                <div>
+                    <label asp-for="Input.ClientType" class="og-label">Tipo de client</label>
+                    <select asp-for="Input.ClientType" class="og-input">
+                        @foreach (var t in Model.SupportedClientTypes)
+                        {
+                            <option value="@t">@t</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label asp-for="Input.ConsentType" class="og-label">Tipo de consentimento</label>
+                    <select asp-for="Input.ConsentType" class="og-input">
+                        @foreach (var c in Model.SupportedConsentTypes)
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    </select>
+                </div>
+                <div class="lg:col-span-2">
+                    <label asp-for="Input.ClientSecret" class="og-label">Client secret</label>
+                    <input asp-for="Input.ClientSecret" type="password" class="og-input" autocomplete="new-password" />
+                    <span asp-validation-for="Input.ClientSecret" class="og-field-error"></span>
+                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Obrigatório para clients <em>confidential</em>. Deixe vazio para clients públicos.</p>
+                </div>
+            </div>
+        </div>
+
+        @* ── URIs ──────────────────────────────────────────────────── *@
+        <div class="space-y-4">
+            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Redirecionamento</h2>
             <div>
-                <label asp-for="Input.ClientId" class="og-label">Client ID</label>
-                <input asp-for="Input.ClientId" class="og-input" />
-            </div>
-            <div>
-                <label asp-for="Input.DisplayName" class="og-label">Display name</label>
-                <input asp-for="Input.DisplayName" class="og-input" />
-            </div>
-            <div>
-                <label asp-for="Input.ClientType" class="og-label">Client type</label>
-                <select asp-for="Input.ClientType" class="og-input">
-                    @foreach (var clientType in Model.SupportedClientTypes)
-                    {
-                        <option value="@clientType">@clientType</option>
-                    }
-                </select>
-            </div>
-            <div>
-                <label asp-for="Input.ConsentType" class="og-label">Consent type</label>
-                <select asp-for="Input.ConsentType" class="og-input">
-                    @foreach (var consentType in Model.SupportedConsentTypes)
-                    {
-                        <option value="@consentType">@consentType</option>
-                    }
-                </select>
-            </div>
-            <div class="lg:col-span-2">
-                <label asp-for="Input.ClientSecret" class="og-label">Client secret</label>
-                <input asp-for="Input.ClientSecret" class="og-input" />
-                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Obrigatório para clients `confidential`.</p>
-            </div>
-            <div class="lg:col-span-2">
                 <label asp-for="Input.RedirectUris" class="og-label">Redirect URIs</label>
-                <textarea asp-for="Input.RedirectUris" rows="4" class="og-input"></textarea>
+                <textarea asp-for="Input.RedirectUris" rows="3" class="og-input font-mono text-xs" placeholder="https://myapp.com/callback"></textarea>
+                <span asp-validation-for="Input.RedirectUris" class="og-field-error"></span>
                 <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Uma URI por linha ou separadas por vírgula.</p>
             </div>
-            <div class="lg:col-span-2">
-                <label asp-for="Input.PostLogoutRedirectUris" class="og-label">Post logout redirect URIs</label>
-                <textarea asp-for="Input.PostLogoutRedirectUris" rows="3" class="og-input"></textarea>
-            </div>
-            <div class="lg:col-span-2">
-                <label asp-for="Input.Permissions" class="og-label">Permissions</label>
-                <textarea asp-for="Input.Permissions" rows="6" class="og-input"></textarea>
-            </div>
-            <div class="lg:col-span-2">
-                <label asp-for="Input.Requirements" class="og-label">Requirements</label>
-                <textarea asp-for="Input.Requirements" rows="3" class="og-input"></textarea>
+            <div>
+                <label asp-for="Input.PostLogoutRedirectUris" class="og-label">Post-logout redirect URIs</label>
+                <textarea asp-for="Input.PostLogoutRedirectUris" rows="2" class="og-input font-mono text-xs" placeholder="https://myapp.com/signout-callback"></textarea>
+                <span asp-validation-for="Input.PostLogoutRedirectUris" class="og-field-error"></span>
             </div>
         </div>
 
-        <div class="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400">
-            Exemplos úteis: `endpoints:authorization`, `grant_types:authorization_code`, `response_types:code`, `scp:openid`, `features:proof_key_for_code_exchange`.
+        @* ── Permissões ────────────────────────────────────────────── *@
+        <div class="space-y-5">
+            <div>
+                <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Permissões</h2>
+                <span asp-validation-for="Input.Permissions" class="og-field-error block mt-1"></span>
+            </div>
+
+            @* Endpoints *@
+            <div>
+                <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Endpoints</p>
+                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    @{
+                        var endpoints = new[]
+                        {
+                            ("ept:authorization",  "Authorization"),
+                            ("ept:token",          "Token"),
+                            ("ept:logout",         "Logout / End Session"),
+                            ("ept:introspection",  "Introspection"),
+                            ("ept:revocation",     "Revocation"),
+                            ("ept:device",         "Device Authorization"),
+                        };
+                    }
+                    @foreach (var (perm, lbl) in endpoints)
+                    {
+                        <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition-colors
+                                      hover:bg-gray-50 has-[:checked]:border-primary-300 has-[:checked]:bg-primary-50
+                                      dark:border-gray-700 dark:hover:bg-gray-800 dark:has-[:checked]:border-primary-700 dark:has-[:checked]:bg-primary-950/40">
+                            <input type="checkbox" class="perm-check h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" data-perm="@perm" />
+                            @lbl
+                        </label>
+                    }
+                </div>
+            </div>
+
+            @* Grant Types *@
+            <div>
+                <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Tipos de concessão (Grant Types)</p>
+                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    @{
+                        var grantTypes = new[]
+                        {
+                            ("gt:authorization_code",                                    "Authorization Code"),
+                            ("gt:client_credentials",                                    "Client Credentials"),
+                            ("gt:refresh_token",                                         "Refresh Token"),
+                            ("gt:implicit",                                              "Implicit"),
+                            ("gt:urn:ietf:params:oauth:grant-type:device_code",         "Device Code"),
+                            ("gt:password",                                              "Resource Owner Password"),
+                        };
+                    }
+                    @foreach (var (perm, lbl) in grantTypes)
+                    {
+                        <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition-colors
+                                      hover:bg-gray-50 has-[:checked]:border-primary-300 has-[:checked]:bg-primary-50
+                                      dark:border-gray-700 dark:hover:bg-gray-800 dark:has-[:checked]:border-primary-700 dark:has-[:checked]:bg-primary-950/40">
+                            <input type="checkbox" class="perm-check h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" data-perm="@perm" />
+                            @lbl
+                        </label>
+                    }
+                </div>
+            </div>
+
+            @* Response Types *@
+            <div>
+                <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Response Types</p>
+                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    @{
+                        var responseTypes = new[]
+                        {
+                            ("rst:code",           "code"),
+                            ("rst:id_token",       "id_token"),
+                            ("rst:token",          "token"),
+                            ("rst:code id_token",  "code id_token"),
+                            ("rst:code token",     "code token"),
+                        };
+                    }
+                    @foreach (var (perm, lbl) in responseTypes)
+                    {
+                        <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition-colors
+                                      hover:bg-gray-50 has-[:checked]:border-primary-300 has-[:checked]:bg-primary-50
+                                      dark:border-gray-700 dark:hover:bg-gray-800 dark:has-[:checked]:border-primary-700 dark:has-[:checked]:bg-primary-950/40">
+                            <input type="checkbox" class="perm-check h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" data-perm="@perm" />
+                            <code class="text-xs">@lbl</code>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            @* Scopes *@
+            <div>
+                <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Scopes</p>
+                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 mb-3">
+                    @{
+                        var stdScopes = new[]
+                        {
+                            ("scp:openid",         "openid"),
+                            ("scp:profile",        "profile"),
+                            ("scp:email",          "email"),
+                            ("scp:phone",          "phone"),
+                            ("scp:address",        "address"),
+                            ("scp:roles",          "roles"),
+                            ("scp:offline_access", "offline_access"),
+                        };
+                    }
+                    @foreach (var (perm, lbl) in stdScopes)
+                    {
+                        <label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm transition-colors
+                                      hover:bg-gray-50 has-[:checked]:border-primary-300 has-[:checked]:bg-primary-50
+                                      dark:border-gray-700 dark:hover:bg-gray-800 dark:has-[:checked]:border-primary-700 dark:has-[:checked]:bg-primary-950/40">
+                            <input type="checkbox" class="perm-check h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" data-perm="@perm" />
+                            <code class="text-xs">@lbl</code>
+                        </label>
+                    }
+                </div>
+                <div>
+                    <label class="og-label" for="customScopes">
+                        Scopes adicionais <span class="font-normal text-gray-400">(API Scopes, um por linha)</span>
+                    </label>
+                    <textarea id="customScopes" rows="2" class="og-input font-mono text-xs" placeholder="api&#10;myservice&#10;resource1"></textarea>
+                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">O prefixo <code class="bg-gray-100 px-1 rounded dark:bg-gray-800">scp:</code> será adicionado automaticamente.</p>
+                </div>
+            </div>
         </div>
 
-        <div class="flex flex-wrap justify-end gap-3">
+        @* ── Requisitos ────────────────────────────────────────────── *@
+        <div class="space-y-3">
+            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Requisitos</h2>
+            <label class="inline-flex w-full cursor-pointer items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm transition-colors
+                          hover:bg-gray-50 has-[:checked]:border-primary-300 has-[:checked]:bg-primary-50
+                          dark:border-gray-700 dark:hover:bg-gray-800 dark:has-[:checked]:border-primary-700 dark:has-[:checked]:bg-primary-950/40">
+                <input type="checkbox" id="req_pkce" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                <div>
+                    <p class="font-medium">PKCE obrigatório</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Exige <em>Proof Key for Code Exchange</em> em todas as requisições de autorização.</p>
+                </div>
+            </label>
+        </div>
+
+        <div class="flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-6 dark:border-gray-800">
             <a href="/Admin/Clients" class="og-btn-ghost">Cancelar</a>
             <button type="submit" class="og-btn-action">Criar client</button>
         </div>
@@ -80,4 +222,43 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        const _STD_SCOPES = ['scp:openid','scp:profile','scp:email','scp:phone','scp:address','scp:roles','scp:offline_access'];
+
+        function initPermissions(permsRaw, reqsRaw) {
+            const perms = permsRaw.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+            const reqs  = reqsRaw.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+
+            document.querySelectorAll('.perm-check').forEach(cb => {
+                cb.checked = perms.includes(cb.dataset.perm);
+            });
+
+            const customScopes = perms
+                .filter(p => p.startsWith('scp:') && !_STD_SCOPES.includes(p))
+                .map(p => p.slice(4));
+            if (customScopes.length) {
+                document.getElementById('customScopes').value = customScopes.join('\n');
+            }
+
+            document.getElementById('req_pkce').checked = reqs.includes('ft:proof_key_for_code_exchange');
+        }
+
+        document.getElementById('clientForm').addEventListener('submit', function () {
+            const perms = [];
+            document.querySelectorAll('.perm-check:checked').forEach(cb => perms.push(cb.dataset.perm));
+            document.getElementById('customScopes').value
+                .split(/[\n,;]+/).map(s => s.trim()).filter(Boolean)
+                .forEach(s => perms.push('scp:' + s));
+            document.getElementById('hdnPermissions').value = perms.join('\n');
+
+            const reqs = [];
+            if (document.getElementById('req_pkce').checked) reqs.push('ft:proof_key_for_code_exchange');
+            document.getElementById('hdnRequirements').value = reqs.join('\n');
+        });
+
+        initPermissions(
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Input.Permissions ?? "")),
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Input.Requirements ?? ""))
+        );
+    </script>
 }
