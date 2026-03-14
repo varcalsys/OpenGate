@@ -1,0 +1,59 @@
+{
+  "identityServer": {
+    "clients": [
+      {
+        "clientId": "duende-spa",
+        "clientName": "Duende SPA",
+        "requireClientSecret": false,
+        "requireConsent": true,
+        "requirePkce": true,
+        "allowedGrantTypes": [
+          "authorization_code",
+          "refresh_token"
+        ],
+        "redirectUris": [
+          "http://localhost:5003/signin-oidc"
+        ],
+        "postLogoutRedirectUris": [
+          "http://localhost:5003/signout-callback-oidc"
+        ],
+        "allowedScopes": [
+          "openid",
+          "profile",
+          "orders-api",
+          "tenant"
+        ]
+      }
+    ],
+    "apiScopes": [
+      {
+        "name": "orders-api",
+        "displayName": "Orders API",
+        "description": "Orders access"
+      }
+    ],
+    "apiResources": [
+      {
+        "name": "orders_resource",
+        "scopes": [
+          "orders-api"
+        ]
+      }
+    ],
+    "identityResources": [
+      {
+        "name": "openid",
+        "displayName": "OpenID"
+      },
+      {
+        "name": "profile",
+        "displayName": "Profile"
+      },
+      {
+        "name": "tenant",
+        "displayName": "Tenant",
+        "description": "Current tenant"
+      }
+    ]
+  }
+}

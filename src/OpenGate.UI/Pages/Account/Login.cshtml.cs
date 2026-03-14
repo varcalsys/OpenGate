@@ -10,6 +10,7 @@ namespace OpenGate.UI.Pages.Account;
 
 public sealed partial class LoginModel(
     SignInManager<OpenGateUser> signInManager,
+    UserManager<OpenGateUser> userManager,
     ILogger<LoginModel> logger) : PageModel
 {
     [BindProperty]
@@ -63,8 +64,20 @@ public sealed partial class LoginModel(
             return Page();
         }
 
+        var user = await userManager.FindByEmailAsync(Input.Email);
+        if (user is null || !user.IsActive)
+        {
+            if (user is not null && !user.IsActive)
+            {
+                Log.UserInactive(logger, Input.Email);
+            }
+
+            ErrorMessage = "E-mail ou senha incorretos.";
+            return Page();
+        }
+
         var result = await signInManager.PasswordSignInAsync(
-            Input.Email,
+            user,
             Input.Password,
             Input.RememberMe,
             lockoutOnFailure: true);
@@ -94,6 +107,9 @@ public sealed partial class LoginModel(
 
         [LoggerMessage(Level = LogLevel.Warning, Message = "User {Email} account locked out.")]
         public static partial void UserLockedOut(ILogger logger, string email);
+
+        [LoggerMessage(Level = LogLevel.Warning, Message = "Inactive user {Email} attempted to log in.")]
+        public static partial void UserInactive(ILogger logger, string email);
     }
 }
 

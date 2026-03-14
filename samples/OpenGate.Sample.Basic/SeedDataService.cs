@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using OpenGate.Admin.Api.Security;
 using OpenGate.Data.EFCore;
 using OpenGate.Data.EFCore.Entities;
 using OpenGate.Server.Options;
@@ -31,8 +32,14 @@ public sealed partial class SeedDataService(
         // 2. Demo user
         await SeedDemoUserAsync(sp, stoppingToken);
 
-        // 3. OAuth clients
+        // 3. Admin roles + assignment
+        await SeedAdminRolesAsync(sp, stoppingToken);
+
+        // 4. OAuth clients
         await SeedClientsAsync(sp, stoppingToken);
+
+        // 5. Admin sample data
+        await SeedAdminSampleDataAsync(sp, stoppingToken);
     }
 
     // ── Demo user ─────────────────────────────────────────────────────────────
@@ -63,6 +70,39 @@ public sealed partial class SeedDataService(
         else
             foreach (var e in result.Errors)
                 Log.DemoUserError(logger, e.Description);
+    }
+
+    private async Task SeedAdminRolesAsync(IServiceProvider sp, CancellationToken ct)
+    {
+        var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = sp.GetRequiredService<UserManager<OpenGateUser>>();
+
+        foreach (var roleName in OpenGateAdminRoles.All)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                var roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+                if (!roleResult.Succeeded)
+                {
+                    foreach (var error in roleResult.Errors)
+                        Log.DemoUserError(logger, error.Description);
+                }
+            }
+        }
+
+        var demoUser = await userManager.FindByEmailAsync("demo@opengate.test");
+        if (demoUser is null)
+            return;
+
+        if (!await userManager.IsInRoleAsync(demoUser, OpenGateAdminRoles.SuperAdmin))
+        {
+            var roleResult = await userManager.AddToRoleAsync(demoUser, OpenGateAdminRoles.SuperAdmin);
+            if (!roleResult.Succeeded)
+            {
+                foreach (var error in roleResult.Errors)
+                    Log.DemoUserError(logger, error.Description);
+            }
+        }
     }
 
     // ── OAuth clients ─────────────────────────────────────────────────────────
@@ -140,6 +180,46 @@ public sealed partial class SeedDataService(
 
             Log.ClientCreated(logger, "machine-demo");
         }
+    }
+
+    private static async Task SeedAdminSampleDataAsync(IServiceProvider sp, CancellationToken ct)
+    {
+        var db = sp.GetRequiredService<OpenGateDbContext>();
+        var demoUser = await db.Users.SingleOrDefaultAsync(u => u.Email == "demo@opengate.test", ct);
+        if (demoUser is null)
+            return;
+
+        if (!await db.UserSessions.AnyAsync(s => s.UserId == demoUser.Id, ct))
+        {
+            db.UserSessions.Add(new UserSession
+            {
+                Id = Guid.NewGuid(),
+                UserId = demoUser.Id,
+                ClientId = "interactive-demo",
+                IpAddress = "127.0.0.1",
+                UserAgent = "OpenGate.Sample.Basic/Seed",
+                DeviceInfo = "Seeded Browser Session",
+                CreatedAt = DateTimeOffset.UtcNow.AddMinutes(-15),
+                ExpiresAt = DateTimeOffset.UtcNow.AddHours(8)
+            });
+        }
+
+        if (!await db.AuditLogs.AnyAsync(a => a.UserId == demoUser.Id && a.EventType == "Admin.Seed", ct))
+        {
+            db.AuditLogs.Add(new AuditLog
+            {
+                UserId = demoUser.Id,
+                EventType = "Admin.Seed",
+                ClientId = "interactive-demo",
+                IpAddress = "127.0.0.1",
+                UserAgent = "OpenGate.Sample.Basic/Seed",
+                Succeeded = true,
+                Details = "{\"source\":\"sample-seed\"}",
+                OccurredAt = DateTimeOffset.UtcNow
+            });
+        }
+
+        await db.SaveChangesAsync(ct);
     }
 
     // ── Structured logging ────────────────────────────────────────────────────

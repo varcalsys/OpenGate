@@ -8,6 +8,7 @@
     <Project Path="samples/OpenGate.Sample.Sqlite/OpenGate.Sample.Sqlite.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/OpenGate.Admin.Api/OpenGate.Admin.Api.csproj" />
     <Project Path="src/OpenGate.Data.EFCore.Migrations.PostgreSql/OpenGate.Data.EFCore.Migrations.PostgreSql.csproj" />
     <Project Path="src/OpenGate.Data.EFCore.Migrations.Sqlite/OpenGate.Data.EFCore.Migrations.Sqlite.csproj" />
     <Project Path="src/OpenGate.Data.EFCore/OpenGate.Data.EFCore.csproj" />

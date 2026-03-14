@@ -12,6 +12,7 @@
 
 - [API Reference](api-reference.md)
 - [Architecture Overview](architecture.md)
+- [Migration CLI](migration-cli.md)
 - [Status da Fase 1 (MVP)](fase1-status.md)
 - [CI/CD e Qualidade](ci-cd.md)
 - [Migrations por provider](../src/OpenGate.Data.EFCore/Migrations/README.md)

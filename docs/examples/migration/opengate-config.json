@@ -1,0 +1,41 @@
+{
+  "format": "opengate-admin-configuration",
+  "version": 1,
+  "generatedAt": "2026-03-14T12:00:00Z",
+  "notes": [
+    "Example OpenGate configuration document."
+  ],
+  "clients": [
+    {
+      "clientId": "orders-cli",
+      "displayName": "Orders CLI",
+      "clientType": "public",
+      "consentType": "explicit",
+      "redirectUris": [
+        "http://localhost/orders-cli/callback"
+      ],
+      "postLogoutRedirectUris": [],
+      "permissions": [
+        "ept:authorization",
+        "ept:token",
+        "gt:authorization_code",
+        "rst:code",
+        "scp:openid",
+        "scp:orders-api"
+      ],
+      "requirements": [
+        "ft:pkce"
+      ]
+    }
+  ],
+  "scopes": [
+    {
+      "name": "orders-api",
+      "displayName": "Orders API",
+      "description": "Orders scope",
+      "resources": [
+        "orders_resource"
+      ]
+    }
+  ]
+}

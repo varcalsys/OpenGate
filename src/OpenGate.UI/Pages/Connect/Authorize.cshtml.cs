@@ -33,6 +33,12 @@ public sealed class AuthorizeModel(
             return Challenge(new AuthenticationProperties { RedirectUri = redirectUri });
         }
 
+        var currentUser = await userManager.GetUserAsync(User);
+        if (currentUser is null || !currentUser.IsActive)
+        {
+            return await ChallengeForActiveAccountAsync();
+        }
+
         ClientId = request.ClientId;
 
         var app = ClientId is not null
@@ -67,6 +73,11 @@ public sealed class AuthorizeModel(
 
         var user = await userManager.GetUserAsync(User)
             ?? throw new InvalidOperationException("The current user cannot be found.");
+
+        if (!user.IsActive)
+        {
+            return await ChallengeForActiveAccountAsync();
+        }
 
         var identity = new ClaimsIdentity(
             authenticationType: "OpenIddict",
@@ -107,6 +118,14 @@ public sealed class AuthorizeModel(
         }
 
         return list;
+    }
+
+    private async Task<IActionResult> ChallengeForActiveAccountAsync()
+    {
+        await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+        var redirectUri = Request.PathBase + Request.Path + Request.QueryString;
+        return Challenge(new AuthenticationProperties { RedirectUri = redirectUri });
     }
 
     private static IEnumerable<string> GetDestinations(Claim claim)

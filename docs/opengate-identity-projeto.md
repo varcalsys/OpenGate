@@ -156,6 +156,77 @@ Tudo que é protocolo vem pronto do OpenIddict via NuGet. Nós não tocamos niss
 
 **Objetivo:** Admin UI, Migration CLI e ferramentas que transformam o projeto em produto real.
 
+#### Resultado esperado (definição de Beta v0.5)
+
+Ao final da Fase 2, um dev .NET deve conseguir:
+
+- Subir o OpenGate via `docker-compose` (PostgreSQL + Redis + Prometheus + Grafana) e acessar o painel `/admin`
+- Gerenciar **clientes, escopos, usuários, permissões** e **sessões/tokens (consulta/revogação)** com RBAC aplicado por padrão
+- Exportar/importar configuração (JSON) e executar migrações via CLI
+- Operar o serviço com **observabilidade** (traces/metrics/logs) e **proteções padrão** (rate limiting, health checks)
+
+#### Workstreams / Epics
+
+1) **Admin REST API (OpenGate.Admin.Api)**
+   - CRUD de clientes, escopos, usuários, roles/permissões + sessões/tokens (consulta e revogação)
+   - Paginação, ordenação e filtros consistentes (padrão único)
+   - Import/export JSON + operações em lote (bulk) onde fizer sentido
+   - Swagger/OpenAPI completo + exemplos (requests/responses)
+
+2) **Admin Dashboard (OpenGate.Admin — Blazor WASM)**
+   - Listagens com search/filter, formulários de create/edit, validação e estados de loading/erro
+   - Viewer do audit log (filtros por período, ator, entidade, ação)
+   - Dashboard com métricas operacionais (tokens emitidos, falhas de login, latência p95, etc.)
+
+3) **Segurança e RBAC na Admin**
+   - Perfis: Super Admin, Admin, Viewer (com permissões explícitas)
+   - Seed inicial seguro (primeiro admin) + hardening (cookies/CSRF/CORS conforme arquitetura)
+   - Trilhas mínimas de auditoria para ações administrativas sensíveis
+
+4) **Migration CLI (OpenGate.Migration)**
+   - `dotnet opengate migrate --source duende|is4 --connection-string ...`
+   - Modo `--dry-run` + relatório (o que será criado/atualizado) + logs estruturados
+   - Mapeamentos claros (clientes, secrets, redirect URIs, scopes) e limitações documentadas
+
+5) **Autenticação do usuário final: Social + MFA**
+   - Templates pré-configurados: Google, Microsoft, GitHub, Apple, Facebook
+   - MFA com TOTP (Google Authenticator) + recovery codes + UX consistente
+
+6) **Operação / Observabilidade / Proteções**
+   - OpenTelemetry: traces, metrics, logs (defaults opinativos) + exporters comuns
+   - Endpoint Prometheus + health checks prontos para Kubernetes
+   - Rate limiting por `client_id`, IP e (quando aplicável) usuário
+
+7) **Documentação e DX (Beta-ready)**
+   - +15 tutoriais (Admin, RBAC, social login, MFA, observabilidade)
+   - Guia de migração do Duende IS completo (incluindo “gotchas” e checklist)
+   - Docker Compose “bater e rodar” com dashboards no Grafana
+
+#### Fora de escopo (explícito) na Fase 2
+
+- Multi-tenancy, SAML bridge, Passkeys/WebAuthn, SCIM, Helm Charts (Fase 3+)
+- Conformance tests OpenID Foundation (Fase 4)
+
+#### Critérios de aceite (gate do v0.5 Beta)
+
+- **Admin API**
+  - 100% das operações essenciais (clientes/escopos/usuários/roles + sessões/tokens para consulta/revogação) disponíveis via REST
+  - Swagger atualizado e navegável; erros padronizados; paginação/filtros consistentes
+- **Admin UI**
+  - Fluxos completos de criar/editar/listar para clientes e escopos; gestão básica de usuários; consulta/revogação de sessões/tokens
+  - RBAC aplicado (Viewer não altera; Admin altera; Super Admin gerencia permissões)
+- **Migration CLI**
+  - Importa ao menos 80% dos cenários comuns de Duende/IS4 (clientes + scopes + redirect URIs + secrets)
+  - Suporta `--dry-run` e gera relatório legível
+- **Operação**
+  - Compose com Prometheus + Grafana e dashboards iniciais
+  - OTel habilitado com configuração documentada; health checks prontos
+- **Qualidade**
+  - Testes de integração cobrindo endpoints críticos e autorização (RBAC)
+  - CI verde (CodeQL + testes) e documentação mínima de release
+
+#### Checklist (resumo do escopo)
+
 - Admin REST API: CRUD de clientes, escopos, usuários, tokens. Import/export JSON. Swagger completo.
 - Admin Dashboard (Blazor WASM): listagens com search/filter, forms, dashboard de métricas, audit log viewer
 - RBAC na Admin: Super Admin, Admin, Viewer
@@ -166,6 +237,172 @@ Tudo que é protocolo vem pronto do OpenIddict via NuGet. Nós não tocamos niss
 - Rate limiting inteligente por client_id, IP, usuário
 - 15 tutoriais adicionais + guia de migração do Duende IS completo
 - Docker Compose com tudo pré-configurado (app + PostgreSQL + Redis + Prometheus + Grafana)
+
+#### Checklist de execução da Fase 2
+
+**0. Preparação / kickoff**
+
+- [ ] Confirmar que os entregáveis da Fase 1 necessários para Admin/API já estão estáveis
+- [ ] Congelar o escopo da Fase 2 e registrar explicitamente o que ficou para a Fase 3+
+- [ ] Definir owner por workstream (API, UI, CLI, Segurança, Docs, DevOps)
+- [ ] Definir Definition of Done comum: código, testes, documentação, observabilidade e review
+- [ ] Criar backlog por sprint com prioridade e dependências claras
+
+**1. Admin REST API**
+
+- [ ] Definir contratos da API (resources, rotas, paginação, filtros, erros padronizados)
+- [ ] Implementar CRUD de clientes
+- [ ] Implementar CRUD de escopos
+- [ ] Implementar CRUD de usuários
+- [ ] Implementar papéis/permissões administrativas
+- [ ] Implementar consulta e revogação de sessões/tokens
+- [ ] Implementar import/export JSON
+- [ ] Adicionar Swagger/OpenAPI com exemplos e fluxos documentados
+- [ ] Cobrir endpoints críticos com testes de integração
+
+**2. Admin Dashboard (Blazor WASM)**
+
+- [ ] Implementar autenticação/acesso ao painel `/admin`
+- [ ] Criar listagens com busca, filtro, paginação e ordenação
+- [ ] Criar formulários de criação/edição para clientes e escopos
+- [ ] Criar fluxo básico de gestão de usuários
+- [ ] Criar viewer de audit log com filtros úteis
+- [ ] Criar dashboard com métricas operacionais principais
+- [ ] Validar estados de loading, erro, empty state e feedback de sucesso
+
+**3. Segurança e RBAC**
+
+- [ ] Definir matriz de permissões para Super Admin, Admin e Viewer
+- [ ] Implementar seed seguro do primeiro administrador
+- [ ] Garantir proteção das rotas administrativas com authorization policies
+- [ ] Auditar ações sensíveis (create/update/delete/revoke)
+- [ ] Validar restrições por perfil com testes automatizados
+
+**4. Migration CLI**
+
+- [ ] Definir modelo de entrada/saída para migração de Duende e IdentityServer4
+- [ ] Implementar parser/adapters por origem (`duende`, `is4`)
+- [ ] Implementar `--dry-run` com relatório do que será criado/alterado
+- [ ] Implementar execução real da migração com logs estruturados
+- [ ] Documentar mapeamentos suportados e limitações conhecidas
+- [ ] Validar a CLI com cenários reais ou fixtures representativas
+
+**5. Social Login + MFA**
+
+- [ ] Criar templates/configuração-base para Google, Microsoft, GitHub, Apple e Facebook
+- [ ] Documentar secrets, callbacks e setup por provider
+- [ ] Implementar enrolment de TOTP
+- [ ] Implementar challenge de MFA no login
+- [ ] Implementar recovery codes
+- [ ] Implementar UX de ativação/desativação e mensagens de erro consistentes
+
+**6. Operação / observabilidade / proteção**
+
+- [ ] Habilitar OpenTelemetry para traces, metrics e logs
+- [ ] Expor endpoint Prometheus
+- [ ] Configurar health checks prontos para uso em Kubernetes
+- [ ] Implementar políticas de rate limiting por `client_id`, IP e usuário
+- [ ] Preparar dashboards iniciais no Grafana
+- [ ] Montar `docker-compose` completo e funcional para ambiente demo/staging
+
+**7. Documentação e DX**
+
+- [ ] Produzir os 15 tutoriais planejados
+- [ ] Escrever o guia completo de migração do Duende IS
+- [ ] Documentar Admin API, RBAC, social login, MFA e observabilidade
+- [ ] Atualizar samples e exemplos de configuração quando necessário
+- [ ] Criar checklist de onboarding para novos usuários do Beta
+
+**8. Gate de release do v0.5 Beta**
+
+- [ ] Executar smoke test completo via `docker-compose`
+- [ ] Validar fluxos principais: admin login, CRUD, import/export, migração, MFA e observabilidade
+- [ ] Garantir CI verde (testes, CodeQL e demais checks obrigatórios)
+- [ ] Revisar gaps conhecidos e registrar limitações do Beta
+- [ ] Preparar release notes, changelog e instruções de upgrade/instalação
+- [ ] Publicar artefatos: NuGet, imagens Docker e documentação do Beta
+
+#### Plano de execução da Fase 2
+
+**Sequência recomendada de implementação**
+
+1. **Fundação da Admin API + RBAC**
+   - Definir contratos, autorização, seed do primeiro admin e baseline de testes
+2. **Entidades core da administração**
+   - Clients, scopes, usuários, permissões e sessões/tokens
+3. **Admin UI v1**
+   - Painel funcional consumindo a API com listagens, formulários e audit log viewer
+4. **Import/export + Migration CLI**
+   - Primeiro JSON; depois migração Duende/IS4 com `--dry-run`
+5. **Social login + MFA**
+   - Entram depois da base administrativa estável
+6. **Observabilidade + hardening operacional**
+   - OTel, Prometheus, Grafana, health checks e rate limiting
+7. **Documentação, empacotamento e gate de release**
+   - Tutoriais, guide de migração, compose final, release notes
+
+**Dependências críticas**
+
+- A Admin UI depende da estabilidade mínima da Admin API e do modelo de autorização
+- A Migration CLI depende dos contratos finais de clientes/escopos/usuários
+- MFA e social login dependem da estabilidade do fluxo de autenticação/base de usuários
+- Observabilidade e dashboards devem ser ligados cedo, mas finalizados no hardening
+- Documentação deve começar junto das features; não apenas no fim da fase
+
+**Responsáveis sugeridos por frente**
+
+| Frente | Owner principal | Apoio |
+|-------|------------------|-------|
+| Admin API + RBAC | Tech Lead / Senior Backend | Security Engineer |
+| Admin UI (Blazor) | Senior Full-Stack | Tech Lead |
+| Migration CLI | Senior Backend | Tech Lead |
+| Social Login + MFA | Senior Full-Stack | Security Engineer |
+| Observabilidade / Compose | DevOps / SRE | Tech Lead |
+| Documentação / Tutoriais | Technical Writer | Toda a equipe |
+
+**Cadência operacional sugerida**
+
+- Planejamento quinzenal por sprint com objetivos e critérios de saída
+- Daily curta com foco em bloqueios e dependências cruzadas
+- Review ao fim de cada sprint com demo do que está realmente utilizável
+- Retrospectiva com ajuste de escopo, capacidade e riscos
+- Freeze leve nas 2 últimas semanas para hardening, docs e correções
+
+**Marcos de execução por mês**
+
+- **Mês 4:** Admin API base, RBAC inicial, Swagger e primeiros testes de integração
+- **Mês 5:** CRUD core completo + Admin UI v1 + audit log viewer
+- **Mês 6:** Import/export JSON + Migration CLI + social login base
+- **Mês 7:** MFA, observabilidade completa, compose final, docs, hardening e Beta release
+
+**Riscos operacionais a monitorar durante a execução**
+
+- Crescimento descontrolado do escopo da Admin UI
+- Acoplamento excessivo entre API, UI e CLI
+- Subestimação da complexidade da migração Duende/IS4
+- Segurança tratada tarde demais no ciclo
+- Documentação acumulada para o final da fase
+
+**Sinais de que a fase está no caminho certo**
+
+- Ao final de cada sprint existe pelo menos um fluxo demonstrável ponta a ponta
+- Testes de integração acompanham a evolução da API
+- O painel Admin é utilizável cedo, mesmo com escopo reduzido
+- Compose local e ambiente demo permanecem funcionando durante toda a fase
+- O backlog restante do Beta fica menor e mais claro sprint após sprint
+
+#### Cronograma sugerido (8 sprints / 4 meses)
+
+| Sprint | Foco | Entregável principal |
+|--------|------|----------------------|
+| 1 | Fundamentos Admin API | Skeleton Admin API + autenticação + RBAC básico + Swagger |
+| 2 | Entidades core | CRUD de Clients/Scopes com paginação/filtros + testes de integração |
+| 3 | Admin UI v1 | Listagens + forms para Clients/Scopes + login no painel |
+| 4 | Usuários + auditoria | CRUD básico de usuários + audit log (API + viewer UI) |
+| 5 | Import/Export | Export/import JSON + bulk ops + documentação |
+| 6 | Migration CLI | Migração Duende/IS4 com `--dry-run` + relatórios |
+| 7 | Social + MFA | Templates social login + TOTP + recovery codes + tutoriais |
+| 8 | Ops + Beta hardening | Compose completo (Prom/Grafana) + OTel + rate limiting + release notes |
 
 **Entrega:** v0.5 Beta — NuGet público + Admin UI + Docker Compose
 

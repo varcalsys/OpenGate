@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenGate.Migration\OpenGate.Migration.csproj" />
     <ProjectReference Include="..\..\src\OpenGate.Server\OpenGate.Server.csproj" />
     <ProjectReference Include="..\..\samples\OpenGate.Sample.Basic\OpenGate.Sample.Basic.csproj" />
   </ItemGroup>

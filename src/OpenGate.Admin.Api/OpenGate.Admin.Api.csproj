@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>OpenGate Identity Server — Admin API package. Provides RBAC policies and minimal API endpoints for user, audit and session administration.</Description>
+    <PackageTags>opengate;identity;admin;api;rbac;minimalapi</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenGate.Data.EFCore\OpenGate.Data.EFCore.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dotnet-opengate</ToolCommandName>
+    <PackageIcon></PackageIcon>
+    <Description>OpenGate Migration CLI. Imports OpenGate configuration JSON into an OpenGate database and provides the baseline surface for future Duende/IdentityServer4 adapters.</Description>
+    <PackageTags>opengate;identity;migration;cli;tool</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenGate.Admin.Api\OpenGate.Admin.Api.csproj" />
+    <ProjectReference Include="..\OpenGate.Data.EFCore\OpenGate.Data.EFCore.csproj" />
+    <ProjectReference Include="..\OpenGate.Data.EFCore.Migrations.PostgreSql\OpenGate.Data.EFCore.Migrations.PostgreSql.csproj" />
+    <ProjectReference Include="..\OpenGate.Data.EFCore.Migrations.Sqlite\OpenGate.Data.EFCore.Migrations.Sqlite.csproj" />
+    <ProjectReference Include="..\OpenGate.Server\OpenGate.Server.csproj" />
+  </ItemGroup>
+
+</Project>

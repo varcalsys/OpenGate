@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -99,6 +100,8 @@ public sealed class OpenGateWebFactory : WebApplicationFactory<Program>
 /// </summary>
 internal sealed class IntegrationSeedService(IServiceProvider services) : IHostedService
 {
+    internal const string DemoEmail           = "demo@opengate.test";
+    internal const string DemoPassword        = "Demo@1234!abcd";
     internal const string MachineClientId     = "machine-demo";
     internal const string MachineClientSecret = "machine-demo-secret-change-in-prod";
     internal const string InteractiveClientId = "interactive-demo";
@@ -129,8 +132,14 @@ internal sealed class IntegrationSeedService(IServiceProvider services) : IHoste
         var db = sp.GetRequiredService<OpenGateDbContext>();
         await db.Database.EnsureCreatedAsync(CancellationToken.None);
 
+        var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = sp.GetRequiredService<UserManager<OpenGate.Data.EFCore.Entities.OpenGateUser>>();
         var appMgr   = sp.GetRequiredService<IOpenIddictApplicationManager>();
         var scopeMgr = sp.GetRequiredService<IOpenIddictScopeManager>();
+
+        await SeedDemoUserAsync(userManager);
+        await SeedAdminRolesAsync(roleManager, userManager);
+        await SeedAdminDataAsync(db, userManager);
 
         // ── Scopes ────────────────────────────────────────────────────────────
         // OpenIddict validates scope references when creating applications.
@@ -187,6 +196,85 @@ internal sealed class IntegrationSeedService(IServiceProvider services) : IHoste
                 Requirements = { Requirements.Features.ProofKeyForCodeExchange }
             }, CancellationToken.None);
         }
+    }
+
+    private static async Task SeedDemoUserAsync(UserManager<OpenGate.Data.EFCore.Entities.OpenGateUser> userManager)
+    {
+        if (await userManager.FindByEmailAsync(DemoEmail) is not null)
+            return;
+
+        var user = new OpenGate.Data.EFCore.Entities.OpenGateUser
+        {
+            UserName = DemoEmail,
+            Email = DemoEmail,
+            EmailConfirmed = true,
+            Profile = new OpenGate.Data.EFCore.Entities.UserProfile
+            {
+                FirstName = "Demo",
+                LastName = "User",
+                DisplayName = "Demo User"
+            }
+        };
+
+        await userManager.CreateAsync(user, DemoPassword);
+    }
+
+    private static async Task SeedAdminRolesAsync(
+        RoleManager<IdentityRole> roleManager,
+        UserManager<OpenGate.Data.EFCore.Entities.OpenGateUser> userManager)
+    {
+        foreach (var roleName in new[] { "SuperAdmin", "Admin", "Viewer" })
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
+
+        var demoUser = await userManager.FindByEmailAsync(DemoEmail);
+        if (demoUser is not null && !await userManager.IsInRoleAsync(demoUser, "SuperAdmin"))
+        {
+            await userManager.AddToRoleAsync(demoUser, "SuperAdmin");
+        }
+    }
+
+    private static async Task SeedAdminDataAsync(
+        OpenGateDbContext db,
+        UserManager<OpenGate.Data.EFCore.Entities.OpenGateUser> userManager)
+    {
+        var demoUser = await userManager.FindByEmailAsync(DemoEmail);
+        if (demoUser is null)
+            return;
+
+        if (!await db.UserSessions.AnyAsync(s => s.UserId == demoUser.Id, CancellationToken.None))
+        {
+            db.UserSessions.Add(new OpenGate.Data.EFCore.Entities.UserSession
+            {
+                Id = Guid.NewGuid(),
+                UserId = demoUser.Id,
+                ClientId = InteractiveClientId,
+                IpAddress = "127.0.0.1",
+                UserAgent = "IntegrationTests",
+                DeviceInfo = "Integration Browser Session",
+                CreatedAt = DateTimeOffset.UtcNow.AddMinutes(-10),
+                ExpiresAt = DateTimeOffset.UtcNow.AddHours(2)
+            });
+        }
+
+        if (!await db.AuditLogs.AnyAsync(a => a.UserId == demoUser.Id && a.EventType == "Admin.Seed", CancellationToken.None))
+        {
+            db.AuditLogs.Add(new OpenGate.Data.EFCore.Entities.AuditLog
+            {
+                UserId = demoUser.Id,
+                EventType = "Admin.Seed",
+                ClientId = InteractiveClientId,
+                Succeeded = true,
+                Details = "{\"source\":\"integration-seed\"}",
+                OccurredAt = DateTimeOffset.UtcNow
+            });
+        }
+
+        await db.SaveChangesAsync(CancellationToken.None);
     }
 }
 

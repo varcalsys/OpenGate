@@ -1,0 +1,40 @@
+{
+  "clients": [
+    {
+      "clientId": "is4-machine",
+      "clientName": "IS4 Machine",
+      "requireClientSecret": true,
+      "allowedGrantTypes": [
+        "client_credentials"
+      ],
+      "allowedScopes": [
+        "catalog-api"
+      ],
+      "clientSecrets": [
+        { "value": "is4-machine-secret" }
+      ]
+    }
+  ],
+  "apiScopes": [
+    {
+      "name": "catalog-api",
+      "displayName": "Catalog API",
+      "description": "Catalog access"
+    }
+  ],
+  "apiResources": [
+    {
+      "name": "catalog_resource",
+      "scopes": [
+        "catalog-api"
+      ]
+    }
+  ],
+  "identityResources": [
+    {
+      "name": "tenant",
+      "displayName": "Tenant",
+      "description": "Current tenant"
+    }
+  ]
+}
