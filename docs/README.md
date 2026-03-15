@@ -11,6 +11,7 @@
 ### Referência
 
 - [API Reference](api-reference.md)
+- [Uso via API sem UI](headless-api.md)
 - [Architecture Overview](architecture.md)
 - [Migration CLI](migration-cli.md)
 - [Status da Fase 1 (MVP)](fase1-status.md)
